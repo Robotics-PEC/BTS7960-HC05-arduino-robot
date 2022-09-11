@@ -15,6 +15,8 @@
 #define CW 1                                                                       // don't change
 #define CCW 0                                                                      // don't change
 
+#define STOP_HARD_MODE 1
+#define STOP_SOFT_MODE 0
 
 
 #define rx 0
@@ -22,6 +24,7 @@
 
 
 char t;
+bool stop_mode = STOP_SOFT_MODE;
 unsigned long time_since_last_command = 0;
 
 #include <SoftwareSerial.h>
@@ -29,8 +32,7 @@ SoftwareSerial HC05(rx, tx);
 
 byte speed = 255;
 
-void setup()
-{
+void setup(){
   pinMode(13, OUTPUT);
   pinMode(2, OUTPUT);
   pinMode(RPWM_1, OUTPUT);
@@ -50,8 +52,7 @@ void setup()
   HC05.begin(9600);
 }
 
-void forward()
-{
+void forward(){
   digitalWrite(R_EN_1, HIGH);
   digitalWrite(R_EN_2, HIGH);
   digitalWrite(L_EN_1, HIGH);
@@ -62,8 +63,7 @@ void forward()
   analogWrite(RPWM_2, speed);
 }
 
-void back()
-{
+void back(){
   digitalWrite(R_EN_1, HIGH);
   digitalWrite(R_EN_2, HIGH);
   digitalWrite(L_EN_1, HIGH);
@@ -74,8 +74,7 @@ void back()
   analogWrite(LPWM_2, speed);
 }
 
-void left()
-{
+void left(){
   digitalWrite(R_EN_1, HIGH);
   digitalWrite(R_EN_2, HIGH);
   digitalWrite(L_EN_1, HIGH);
@@ -86,8 +85,7 @@ void left()
   analogWrite(RPWM_2, speed/2);
 }
 
-void right()
-{
+void right(){
   digitalWrite(R_EN_1, HIGH);
   digitalWrite(R_EN_2, HIGH);
   digitalWrite(L_EN_1, HIGH);
@@ -98,52 +96,63 @@ void right()
   analogWrite(LPWM_2, speed/2);
 }
 
-void forwardleft()
-{
- digitalWrite(R_EN_1, LOW);
+void forwardleft(){
+  digitalWrite(R_EN_1, LOW);
   digitalWrite(R_EN_2, HIGH);
   digitalWrite(L_EN_1, LOW);
   digitalWrite(L_EN_2, HIGH);
+  digitalWrite(LPWM_1, LOW);
+  digitalWrite(RPWM_1, LOW);
   digitalWrite(LPWM_2, LOW);
   analogWrite(RPWM_2, speed);
 }
 
-void forwardright()
-{
+void forwardright(){
   digitalWrite(R_EN_1, HIGH);
   digitalWrite(R_EN_2, LOW);
   digitalWrite(L_EN_1, HIGH);
   digitalWrite(L_EN_2, LOW);
+  digitalWrite(LPWM_2, LOW);
+  digitalWrite(RPWM_2, LOW);
   digitalWrite(LPWM_1, LOW);
   analogWrite(RPWM_1, speed);
 }
 
-void backleft()
-{
+void backleft(){
   digitalWrite(R_EN_1, LOW);
   digitalWrite(R_EN_2, HIGH);
   digitalWrite(L_EN_1, LOW);
   digitalWrite(L_EN_2, HIGH);
+  digitalWrite(LPWM_1, LOW);
+  digitalWrite(RPWM_1, LOW);
   digitalWrite(RPWM_2, LOW);
   analogWrite(LPWM_2, speed);
 }
 
-void backright()
-{
+void backright(){
   digitalWrite(R_EN_1, HIGH);
   digitalWrite(R_EN_2, LOW);
   digitalWrite(L_EN_1, HIGH);
   digitalWrite(L_EN_2, LOW);
+  digitalWrite(LPWM_2, LOW);
+  digitalWrite(RPWM_2, LOW);
   digitalWrite(RPWM_1, LOW);
   analogWrite(LPWM_1, speed);
 }
 
-void stop()
-{
+void stop(){
+  if(stop_mode == STOP_SOFT_MODE){
   digitalWrite(L_EN_1, LOW);
   digitalWrite(R_EN_1, LOW);
   digitalWrite(R_EN_2, LOW);
   digitalWrite(L_EN_2, LOW);
+  }else
+  {
+    digitalWrite(L_EN_1, HIGH);
+    digitalWrite(R_EN_1, HIGH);
+    digitalWrite(R_EN_2, HIGH);
+    digitalWrite(L_EN_2, HIGH);
+  }
   digitalWrite(LPWM_1, LOW);
   digitalWrite(LPWM_2, LOW);
   digitalWrite(RPWM_1, LOW);
@@ -193,6 +202,14 @@ void loop()
 
       case 'S':
         stop();
+        break;
+      
+      case 'X':
+        stop_mode = STOP_HARD_MODE;
+        break;
+
+      case 'x':
+        stop_mode = STOP_SOFT_MODE;
         break;
 
       case '0':
